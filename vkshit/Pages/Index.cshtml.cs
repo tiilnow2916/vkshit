@@ -1,20 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
+using Vkshit;
 
-namespace vkshit.Pages
+namespace Vkshit.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly VkClipService _vk;
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public JsonElement? ClipInfo { get; private set; }
+
+        [BindProperty]
+        public string ClipUrl { get; set; }
+
+        public IndexModel(VkClipService vk)
         {
-            _logger = logger;
+            _vk = vk;
         }
 
-        public void OnGet()
+        public async Task<IActionResult> OnPostAsync()
         {
-
+            ClipInfo = await _vk.GetClipInfo(ClipUrl);
+            return Page();
         }
     }
 }

@@ -1,10 +1,16 @@
 ﻿@page
-@model IndexModel
-@{
-    ViewData["Title"] = "Home page";
-}
+@model Vkshit.Pages.IndexModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h2>VK Clip Info</h2>
+
+<form method="post">
+    <label>Введите ссылку на клип:</label><br>
+    <input type="text" name="ClipUrl" style="width:400px" />
+    <button type="submit">Получить</button>
+</form>
+
+@if (Model.ClipInfo != null)
+{
+    <h3>Данные:</h3>
+    <pre>@Model.ClipInfo</pre>
+}
