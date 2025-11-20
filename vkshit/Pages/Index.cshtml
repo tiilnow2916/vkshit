@@ -1,16 +1,29 @@
 ﻿@page
-@model Vkshit.Pages.IndexModel
+@model IndexModel
+@{
+    ViewData["Title"] = "VK Clip Fetcher";
+}
 
-<h2>VK Clip Info</h2>
+<h2>VK Clip Fetcher</h2>
 
-<form method="post">
-    <label>Введите ссылку на клип:</label><br>
-    <input type="text" name="ClipUrl" style="width:400px" />
-    <button type="submit">Получить</button>
-</form>
-
-@if (Model.ClipInfo != null)
+@if (!Model.IsAuthed)
 {
-    <h3>Данные:</h3>
-    <pre>@Model.ClipInfo</pre>
+    <p><a class="btn btn-primary" href="/auth/login">Войти через VK</a></p>
+}
+else
+{
+    <form method="post">
+        <label>Ссылка на клип:</label>
+        <input type="text" name="ClipUrl" value="@Model.ClipUrl" class="form-control" />
+
+        <button type="submit" class="btn btn-success mt-2">Получить данные</button>
+    </form>
+}
+
+@if (Model.Clip != null)
+{
+    <hr />
+    <h3>@Model.Clip.title</h3>
+    <p>Длительность: @Model.Clip.duration сек</p>
+    <p><a href="@Model.Clip.player" target="_blank">Открыть плеер</a></p>
 }

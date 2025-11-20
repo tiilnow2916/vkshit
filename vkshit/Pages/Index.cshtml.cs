@@ -1,28 +1,39 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text.Json;
-using Vkshit;
+using vkshit;   // <- обязательно!
 
-namespace Vkshit.Pages
+namespace vkshit.Pages;   // <- ВАЖНО!!!
+
+public class IndexModel : PageModel
 {
-    public class IndexModel : PageModel
+    private readonly VkClipService _vk;
+
+    public IndexModel(VkClipService vk)
     {
-        private readonly VkClipService _vk;
+        _vk = vk;
+    }
 
-        public JsonElement? ClipInfo { get; private set; }
+    [BindProperty]
+    public string ClipUrl { get; set; }
 
-        [BindProperty]
-        public string ClipUrl { get; set; }
+    public bool IsAuthed { get; set; }
+    public VkVideoItem? Clip { get; set; }
 
-        public IndexModel(VkClipService vk)
-        {
-            _vk = vk;
-        }
+    public void OnGet()
+    {
+        IsAuthed = Request.Cookies.ContainsKey("vk_token");
+    }
 
-        public async Task<IActionResult> OnPostAsync()
-        {
-            ClipInfo = await _vk.GetClipInfo(ClipUrl);
-            return Page();
-        }
+    public async Task<IActionResult> OnPost()
+    {
+        IsAuthed = Request.Cookies.ContainsKey("vk_token");
+
+        if (!IsAuthed)
+            return Redirect("/auth/login");
+
+        string token = Request.Cookies["vk_token"]!;
+        Clip = await _vk.GetClipAsync(token, ClipUrl);
+
+        return Page();
     }
 }

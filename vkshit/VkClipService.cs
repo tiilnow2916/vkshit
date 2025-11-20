@@ -1,36 +1,37 @@
 ﻿using System.Text.Json;
 
-namespace Vkshit
+namespace vkshit;
+
+public class VkClipService
 {
-    public class VkClipService
+    private readonly HttpClient _http;
+
+    public VkClipService(HttpClient http)
     {
-        private readonly HttpClient _http;
+        _http = http;
+    }
 
-        public VkClipService(HttpClient http)
-        {
-            _http = http;
-        }
+    public async Task<VkVideoItem?> GetClipAsync(string token, string clipUrl)
+    {
+        // пример:
+        // https://vk.com/clip-188633896_456246882
 
-        public async Task<JsonElement?> GetClipInfo(string url)
-        {
-            var match = System.Text.RegularExpressions.Regex.Match(
-                url,
-                @"clip-?(\d+)_(\d+)"
-            );
+        if (!clipUrl.Contains("clip"))
+            return null;
 
-            if (!match.Success)
-                return null;
+        var t = clipUrl.Replace("https://vk.com/clip", "");
+        var parts = t.Split('_');
 
-            string ownerId = match.Groups[1].Value;
-            string clipId = match.Groups[2].Value;
+        string ownerId = parts[0];   // -188633896
+        string videoId = parts[1];   // 456246882
 
-            string apiUrl =
-                $"https://api.vk.com/method/video.get?videos={ownerId}_{clipId}&v=5.154&access_token=";
+        string req =
+            $"https://api.vk.com/method/video.get?videos={ownerId}_{videoId}&access_token={token}&v=5.230";
 
-            var response = await _http.GetAsync(apiUrl);
-            string json = await response.Content.ReadAsStringAsync();
+        var json = await _http.GetStringAsync(req);
 
-            return JsonDocument.Parse(json).RootElement;
-        }
+        var data = JsonSerializer.Deserialize<VkVideoResponse>(json);
+
+        return data?.response?.items?.FirstOrDefault();
     }
 }
